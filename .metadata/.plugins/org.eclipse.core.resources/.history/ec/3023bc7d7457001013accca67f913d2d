@@ -1,0 +1,111 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class TransferServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String senderAcc = (String) request.getSession().getAttribute("accountNumber");
+        String rawReceiver = request.getParameter("receiver");
+        if (rawReceiver == null || rawReceiver.trim().isEmpty()) {
+            System.out.println("<h2>Error: Receiver account number is missing!</h2>");
+            return;
+        }
+        String receiverAcc = rawReceiver.toUpperCase();
+
+         receiverAcc = request.getParameter("receiver").toUpperCase();  // ✅ Case handling
+        double amount = Double.parseDouble(request.getParameter("amount"));
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        if (senderAcc == null) {
+            out.println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        if (senderAcc.equalsIgnoreCase(receiverAcc)) {
+            out.println("<h2>Error: Sender and Receiver cannot be the same.</h2>");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            // Step 1: Get sender balance
+            PreparedStatement ps1 = conn.prepareStatement("SELECT balance FROM accounts WHERE account_number = ?");
+            ps1.setString(1, senderAcc);
+            ResultSet rs1 = ps1.executeQuery();
+
+            if (!rs1.next()) {
+                out.println("<h2>Sender account not found!</h2>");
+                return;
+            }
+
+            double senderBalance = rs1.getDouble("balance");
+
+            if (senderBalance < amount) {
+                out.println("<h2>Insufficient balance!</h2>");
+                return;
+            }
+
+            // Step 2: Check receiver exists
+            PreparedStatement ps2 = conn.prepareStatement("SELECT balance FROM accounts WHERE account_number = ?");
+            ps2.setString(1, receiverAcc);
+            ResultSet rs2 = ps2.executeQuery();
+
+            if (!rs2.next()) {
+                out.println("<h2>Receiver account not found!</h2>");
+                return;
+            }
+
+            double receiverBalance = rs2.getDouble("balance");
+
+            // Step 3: Deduct from sender
+            PreparedStatement ps3 = conn.prepareStatement(
+                    "UPDATE accounts SET balance = balance - ? WHERE account_number = ?");
+            ps3.setDouble(1, amount);
+            ps3.setString(2, senderAcc);
+            ps3.executeUpdate();
+
+            // Step 4: Add to receiver
+            PreparedStatement ps4 = conn.prepareStatement(
+                    "UPDATE accounts SET balance = balance + ? WHERE account_number = ?");
+            ps4.setDouble(1, amount);
+            ps4.setString(2, receiverAcc);
+            ps4.executeUpdate();
+
+            // Step 5: Insert sender transaction
+            PreparedStatement ps5 = conn.prepareStatement(
+                    "INSERT INTO transactions (account_number, date, type, amount, balance, description) VALUES (?, CURDATE(), ?, ?, ?, ?)");
+            ps5.setString(1, senderAcc);
+            ps5.setString(2, "Debit");
+            ps5.setDouble(3, amount);
+            ps5.setDouble(4, senderBalance - amount);
+            ps5.setString(5, "Transferred to " + receiverAcc);
+            ps5.executeUpdate();
+
+            // Step 6: Insert receiver transaction
+            PreparedStatement ps6 = conn.prepareStatement(
+                    "INSERT INTO transactions (account_number, date, type, amount, balance, description) VALUES (?, CURDATE(), ?, ?, ?, ?)");
+            ps6.setString(1, receiverAcc);
+            ps6.setString(2, "Credit");
+            ps6.setDouble(3, amount);
+            ps6.setDouble(4, receiverBalance + amount);
+            ps6.setString(5, "Received from " + senderAcc);
+            ps6.executeUpdate();
+
+            conn.commit();
+            out.println("<h2>₹" + amount + " transferred successfully to " + receiverAcc + "!</h2>");
+            out.println("<a href='dashboard.jsp'>Go to DASHBOARD</a>");
+        } catch (SQLException e) {
+            e.printStackTrace(out);
+        }
+    }
+}

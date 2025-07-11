@@ -1,0 +1,42 @@
+<%
+    String accountHolder = (String) session.getAttribute("accountHolder");
+    if (accountHolder == null) {
+        response.sendRedirect("login.html");
+        return;
+    }
+%>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  </head>
+<body>
+  <div class="sidebar">
+    <h2>🏦 ROY BANK</h2>
+    <a href="ProfileServlet">👤 View Profile</a>
+    <a href="deposit.jsp">💰 Deposit</a>
+    <a href="withdraw.jsp">🏧 Withdraw</a>
+    <a href="transfer.jsp">🔁 Transfer</a>
+    <a href="MiniStatementServlet">🧾 Mini Statement</a>
+    <a href="transaction_history.html">📅 Transaction History</a>
+    <a href="change_pin.jsp">🔒 Change PIN</a>
+    <a href="update_account.jsp">✏️ Update Info</a>
+    <a href="close_account.jsp">❌ Close Account</a>
+    <a href="logout.jsp">🚪 Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="welcome-box">
+      <h1>Welcome, <%= accountHolder %></h1>
+      <p>Select an action from the left menu to continue banking with us!</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 ROY BANK. All rights reserved.
+  </footer>
+</body>
+</html>

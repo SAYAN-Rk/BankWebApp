@@ -1,0 +1,94 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Profile | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f8f8f8;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff6600, #ff8533);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .profile-card {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .profile-card h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .info {
+      margin: 15px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .info strong {
+      color: #333;
+    }
+
+    .btn {
+      display: block;
+      margin: 30px auto 0;
+      background-color: #ff6600;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #e65c00;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #f2f2f2;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>ROY BANK - My Profile</header>
+
+<div class="profile-card">
+  <h2>Account Details</h2>
+  <div class="info"><strong>Account Number:</strong> ${accNum}</div>
+  <div class="info"><strong>Full Name:</strong> ${name}</div>
+  <div class="info"><strong>Contact Info:</strong> ${contact}</div>
+  <div class="info"><strong>Current Balance:</strong> ₹${balance}</div>
+
+  <a href="dashboard.jsp" class="btn">🏠 Go to Dashboard</a>
+</div>
+
+<footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

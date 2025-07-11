@@ -1,0 +1,190 @@
+<%@ page import="java.util.List" %>
+<%@ page import="com.bankapp.Transaction" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%
+    String fromDate = request.getParameter("from");
+    String toDate = request.getParameter("to");
+    List<Transaction> transactions = (List<Transaction>) request.getAttribute("transactions");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transaction History | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff6600, #ff8533);
+      color: white;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      max-width: 900px;
+      width: 100%;
+      padding: 40px 35px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #ff6600;
+      color: white;
+      font-size: 16px;
+    }
+
+    td {
+      font-size: 15px;
+      color: #333;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-data {
+      text-align: center;
+      font-size: 16px;
+      color: #888;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      background-color: #f2f2f2;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .home-btn {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background-color: #ffffff;
+      color: #ff6600;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      border: 2px solid #fff;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .home-btn:hover {
+      background-color: white;
+      color: #e65c00;
+    }
+
+    .icon {
+      font-size: 40px;
+      color: #ff6600;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="dashboard.jsp" class="home-btn">🏠 Home</a>
+    ROY BANK - Transaction History
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="icon">📑</div>
+      <h2>Transaction History</h2>
+      <p>From: <%= fromDate %> To: <%= toDate %></p>
+
+      <%
+        if (transactions != null && !transactions.isEmpty()) {
+      %>
+      <table>
+        <tr>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th>Date</th>
+        </tr>
+        <%
+          for (Transaction txn : transactions) {
+        %>
+        <tr>
+          <td><%= txn.getType() %></td>
+          <td>₹<%= String.format("%.2f", txn.getAmount()) %></td>
+          <td><%= txn.getDescription() %></td>
+          <td><%= sdf.format(txn.getDate()) %></td>
+        </tr>
+        <%
+          }
+        %>
+      </table>
+      <%
+        } else {
+      %>
+        <div class="no-data">No transactions found for the selected date range.</div>
+      <%
+        }
+      %>
+    </div>
+  </main>
+
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | ROY BANK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+
+    <header>
+        <a href="dashboard.jsp" class="home-btn">🏠 Home</a>
+        ROY BANK
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Account Login</h2>
+            <form action="LoginServlet" method="post">
+                <label for="accountNumber">Account Number</label>
+                <input type="text" name="accountNumber" id="accountNumber" required>
+
+                <label for="pin">4-digit PIN</label>
+                <input type="password" name="pin" id="pin" pattern="\d{4}" maxlength="4" required>
+
+                <input type="submit" value="Login">
+            </form>
+
+            <%-- Optional error message display --%>
+            <%
+                String error = (String) request.getAttribute("error");
+                if (error != null) {
+            %>
+                <div class="message"><%= error %></div>
+            <%
+                }
+            %>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 ROY BANK. All rights reserved.
+    </footer>
+
+</body>
+</html>

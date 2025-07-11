@@ -1,0 +1,49 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    String accNum = (String) session.getAttribute("accountNumber");
+    if (accNum == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Change PIN | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <a href="dashboard.jsp" class="home-btn">HOME</a>
+
+  <header>
+    ROY BANK
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h2>Change Your PIN</h2>
+      <form action="ChangePinServlet" method="post">
+        <!-- Auto-filled hidden account number -->
+        <input type="hidden" name="accountNumber" value="<%= accNum %>">
+
+        <label for="oldPin">Current PIN</label>
+        <input type="password" id="oldPin" name="oldPin" maxlength="4" pattern="\d{4}" required>
+
+        <label for="newPin">New 4-digit PIN</label>
+        <input type="password" id="newPin" name="newPin" maxlength="4" pattern="\d{4}" required>
+
+        <input type="submit" value="Update PIN" class="btn">
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 ROY BANK. All rights reserved.
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // Session check – if not logged in, redirect
+    if (session.getAttribute("accountNumber") == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deposit | ROY BANK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fdfdfd;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #ff6600;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: #ffffff;
+            color: #ff6600;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            border: 2px solid #fff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .home-btn:hover {
+            background-color: white;
+            color: #e65c00;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .form-container {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 40px 50px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #ff6600;
+            outline: none;
+        }
+
+        input[type="submit"] {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 14px;
+            margin-top: 25px;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #e65c00;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="dashboard.jsp" class="home-btn">🏠 Home</a>
+        ROY BANK
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Deposit Money</h2>
+            <form action="DepositServlet" method="post">
+                <%-- Account number from session (hidden input) --%>
+                <input type="hidden" name="accountNumber" value="<%= session.getAttribute("accountNumber") %>">
+
+                <label for="amount">Amount to Deposit (₹)</label>
+                <input type="number" name="amount" id="amount" min="1" required>
+
+                <input type="submit" value="Deposit">
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 ROY BANK. All rights reserved.
+    </footer>
+
+</body>
+</html>

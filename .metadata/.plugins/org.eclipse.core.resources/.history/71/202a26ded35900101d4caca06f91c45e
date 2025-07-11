@@ -1,0 +1,84 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.*;
+
+public class ExportPDFServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        // Step 1: Fetch transactions from DB
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT date, type, amount, balance FROM transactions WHERE account_number = ? ORDER BY date DESC LIMIT 10";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Date date = rs.getDate("date");
+                String type = rs.getString("type");
+                double amount = rs.getDouble("amount");
+                double balance = rs.getDouble("balance");
+
+                transactions.add(new Transaction(date, type, amount, balance));
+            }
+
+        } catch (SQLException e) {
+            throw new ServletException("DB error: " + e.getMessage());
+        }
+
+        // Step 2: Generate PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=MiniStatement.pdf");
+
+        PDDocument doc = new PDDocument();
+        PDPage page = new PDPage(PDRectangle.A4);
+        doc.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(doc, page);
+        PDType1Font font = PDType1Font.HELVETICA;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        content.beginText();
+        content.setFont(font, 16);
+        content.newLineAtOffset(50, 750);
+        content.showText("ROY BANK - Mini Statement");
+        content.setFont(font, 12);
+        content.newLineAtOffset(0, -30);
+        content.showText("Account Number: " + accNum);
+        content.newLineAtOffset(0, -20);
+        content.showText("Date       | Type     | Amount     | Balance");
+        content.newLineAtOffset(0, -15);
+        content.showText("--------------------------------------------------");
+
+        for (Transaction txn : transactions) {
+            content.newLineAtOffset(0, -20);
+            String row = String.format("%s | %-8s | ₹%-8.2f | ₹%-8.2f",
+                    sdf.format(txn.getDate()), txn.getType(), txn.getAmount(), txn.getBalance());
+            content.showText(row);
+        }
+
+        content.endText();
+        content.close();
+
+        doc.save(response.getOutputStream());
+        doc.close();
+    }
+}

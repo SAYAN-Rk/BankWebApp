@@ -1,0 +1,51 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+
+public class MiniStatementServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+   
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            response.setContentType("text/html");
+            PrintWriter out = response.getWriter();
+            out.println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM transactions WHERE account_number = ? ORDER BY date DESC LIMIT 10";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+System.out.println("hello" +sql);
+            while (rs.next()) {
+                Transaction txn = new Transaction();
+                txn.setDate(rs.getDate("date"));
+                txn.setType(rs.getString("type"));
+                txn.setAmount(rs.getDouble("amount"));
+                txn.setBalance(rs.getDouble("balance"));
+                txn.setDescription(rs.getString("description"));
+
+                transactions.add(txn);
+            }
+
+        } catch (SQLException e) {
+            throw new ServletException("DB error in MiniStatementServlet", e);
+        }
+
+        request.setAttribute("transactions", transactions);
+        request.getRequestDispatcher("mini_statement.jsp").forward(request, response);
+    }
+}

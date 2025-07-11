@@ -1,0 +1,143 @@
+<%@ page import="java.util.List" %>
+<%@ page import="com.bankapp.Transaction" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%
+    List<Transaction> transactions = (List<Transaction>) request.getAttribute("transactions");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Statement | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+* {
+  font-family: 'Poppins', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+    body {
+      background: linear-gradient(135deg, #fdfcfb, #e2d1c3);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff6600, #ff8533);
+      color: white;
+      padding: 25px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    table {
+      width: 100%;
+      max-width: 850px;
+      background-color: #fff;
+      border-radius: 14px;
+      border-collapse: collapse;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    th {
+      background-color: #ff6600;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px;
+    }
+
+    td {
+      padding: 14px;
+      font-size: 15px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      color: #333;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 30px;
+      font-size: 16px;
+      color: #888;
+    }
+
+    footer {
+      text-align: center;
+      padding: 14px;
+      background-color: #f2f2f2;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <header>&#128221; ROY BANK - Mini Statement</header>
+
+  <main>
+    <%
+      if (transactions != null && !transactions.isEmpty()) {
+    %>
+      <table>
+        <tr>
+          <th>&#x1F4C5; Date</th>
+          <th>&#x1F501; Type</th>
+          <th>&#128184; Amount</th>
+          <th>&#x1F4B0; Balance</th>
+        </tr>
+        <%
+          for (Transaction txn : transactions) {
+        %>
+        <tr>
+          <td><%= sdf.format(txn.getDate()) %></td>
+          <td><%= txn.getType() %></td>
+          <td>₹<%= String.format("%.2f", txn.getAmount()) %></td>
+          <td>₹<%= String.format("%.2f", txn.getBalance()) %></td>
+        </tr>
+        <%
+          }
+        %>
+      </table>
+    <%
+      } else {
+    %>
+      <div class="no-data">No transactions found.</div>
+    <%
+      }
+    %>
+  </main>
+
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

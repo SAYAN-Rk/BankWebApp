@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ROY BANK | Welcome</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+    }
+
+    body {
+      position: relative;
+      background: linear-gradient(-45deg, #ff8c00, #ffa94d, #ff6600, #ff9248);
+      background-size: 400% 400%;
+      animation: gradientBackground 12s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @keyframes gradientBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background-color: #3d3d3d;
+      color: #fff;
+      padding: 50px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+      color: #ffcc99;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 30px;
+      color: #ddd;
+    }
+
+    .btn {
+      padding: 12px 22px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      margin: 0 10px;
+    }
+
+    .btn-login {
+      background-color: #ff6600;
+      color: white;
+    }
+
+    .btn-login:hover {
+      background-color: #e65c00;
+    }
+
+    .btn-register {
+      background-color: #3d3d3d;
+      border: 2px solid #ff6600;
+      color: #ff6600;
+    }
+
+    .btn-register:hover {
+      background-color: #2f2f2f;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Welcome to ROY BANK 🏦</h1>
+    <p>Your trusted partner for secure and smart banking.</p>
+    <div>
+      <a href="login.jsp"><button class="btn btn-login">Login</button></a>
+      <a href="register.jsp"><button class="btn btn-register">Open New Account</button></a>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

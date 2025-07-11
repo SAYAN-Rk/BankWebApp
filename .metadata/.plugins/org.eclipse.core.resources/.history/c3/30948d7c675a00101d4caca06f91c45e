@@ -1,0 +1,7 @@
+package com.bankapp;
+
+import jakarta.servlet.http.HttpServlet;
+
+public class ExportPDFServlet extends HttpServlet {
+
+}

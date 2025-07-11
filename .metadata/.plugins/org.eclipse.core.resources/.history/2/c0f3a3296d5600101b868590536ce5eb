@@ -1,0 +1,60 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class TransactionHistoryServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+        String fromDate = request.getParameter("from");
+        String toDate = request.getParameter("to");
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        if (accNum == null) {
+            out.println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM transactions WHERE account_number = ? AND date BETWEEN ? AND ? ORDER BY date DESC";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ps.setString(2, fromDate);
+            ps.setString(3, toDate);
+            ResultSet rs = ps.executeQuery();
+
+            out.println("<h2>Transaction History</h2>");
+            out.println("<p>From: " + fromDate + " To: " + toDate + "</p>");
+            out.println("<table border='1'>");
+            out.println("<tr><th>Type</th><th>Amount</th><th>Description</th><th>Date</th></tr>");
+
+            boolean hasResults = false;
+            while (rs.next()) {
+                hasResults = true;
+                out.println("<tr>");
+                out.println("<td>" + rs.getString("type") + "</td>");
+                out.println("<td>₹" + rs.getDouble("amount") + "</td>");
+                out.println("<td>" + rs.getString("description") + "</td>");
+                out.println("<td>" + rs.getTimestamp("timestamp") + "</td>");
+                out.println("</tr>");
+            }
+
+            if (!hasResults) {
+                out.println("<tr><td colspan='4'>No transactions found for the selected date range.</td></tr>");
+            }
+
+            out.println("</table>");
+
+        } catch (SQLException e) {
+            e.printStackTrace(out);
+        }
+    }
+}

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ROY BANK | Welcome</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* 🔁 Animated Background */
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(-45deg, #ff8c00, #ffa94d, #ff6600, #ff9248);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      z-index: -1; /* behind the card */
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Center Card */
+    .welcome-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 50px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      z-index: 2;
+    }
+
+    .welcome-card h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .welcome-card p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-login {
+      background-color: #ff6600;
+      color: white;
+    }
+
+    .btn-login:hover {
+      background-color: #e55b00;
+    }
+
+    .btn-register {
+      background-color: white;
+      color: #ff6600;
+      border: 2px solid #ff6600;
+    }
+
+    .btn-register:hover {
+      background-color: #fff0e6;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🎨 Background animation -->
+  <div class="animated-bg"></div>
+
+  <!-- 🏦 Welcome Card -->
+  <div class="welcome-card">
+    <h1>Welcome to ROY BANK 🏦</h1>
+    <p>Your trusted partner for secure and smart banking.</p>
+    <div>
+      <a href="login.jsp"><button class="btn btn-login">Login</button></a>
+      <a href="register.jsp"><button class="btn btn-register">Open New Account</button></a>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

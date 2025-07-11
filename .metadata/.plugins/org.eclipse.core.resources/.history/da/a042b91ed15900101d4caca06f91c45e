@@ -1,0 +1,44 @@
+<%
+    String accountHolder = (String) session.getAttribute("accountHolder");
+    if (accountHolder == null) {
+        response.sendRedirect("login.html");
+        return;
+    }
+%>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  </head>
+<body>
+  <div class="sidebar">
+    <h2><i class="fas fa-landmark"></i> ROY BANK</h2>
+    <a href="ProfileServlet"><i class="fas fa-user"></i> View Profile</a>
+    <a href="deposit.jsp"><i class="fas fa-piggy-bank"></i> Deposit</a>
+    <a href="withdraw.jsp"><i class="fas fa-money-bill-wave"></i> Withdraw</a>
+    <a href="transfer.jsp"><i class="fas fa-exchange-alt"></i> Transfer</a>
+    <a href="MiniStatementServlet"><i class="fas fa-receipt"></i> Mini Statement</a>
+    <a href="transaction_history.jsp"><i class="fas fa-history"></i> Transaction History</a>
+    <a href="change_pin.jsp"><i class="fas fa-key"></i> Change PIN</a>
+    <a href="update_account.jsp"><i class="fas fa-edit"></i> Update Info</a>
+    <a href="close_account.jsp"><i class="fas fa-user-slash"></i> Close Account</a>
+    <a href="logout.jsp"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+
+  <div class="main">
+    <div class="welcome-box">
+      <h1>Welcome, <%= accountHolder %></h1>
+      <p>Select an action from the left menu to continue banking with us!</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 ROY BANK. All rights reserved.
+  </footer>
+</body>
+</html>

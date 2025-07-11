@@ -1,0 +1,103 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+
+public class ExportPDFServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            response.setContentType("text/html");
+            response.getWriter().println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=Transaction_History.pdf");
+
+        try (
+            PDDocument document = new PDDocument();
+            OutputStream out = response.getOutputStream();
+            Connection conn = DBConnection.getConnection()
+        ) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            
+            // Use the new font approach for PDFBox 3.x
+            PDType1Font helvetica = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+            PDType1Font helveticaBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            
+            contentStream.setFont(helvetica, 12);
+            float leading = 18f;
+            float margin = 50f;
+            float yStart = page.getMediaBox().getHeight() - margin;
+            float xStart = margin;
+
+            contentStream.beginText();
+            contentStream.newLineAtOffset(xStart, yStart);
+            contentStream.showText("ROY BANK - Transaction History for Account: " + accNum);
+            contentStream.newLineAtOffset(0, -leading * 2);
+
+            // Table Header
+            contentStream.setFont(helveticaBold, 11);
+            contentStream.showText(String.format("%-12s %-10s %-12s %-12s %-30s", "Date", "Type", "Amount", "Balance", "Description"));
+            contentStream.newLineAtOffset(0, -leading);
+
+            // Query
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT date, type, amount, balance, description FROM transactions WHERE account_number = ? ORDER BY date DESC"
+            );
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            contentStream.setFont(helvetica, 10);
+
+            boolean hasData = false;
+            while (rs.next()) {
+                hasData = true;
+                java.sql.Date date = rs.getDate("date");
+
+                String type = rs.getString("type");
+                double amount = rs.getDouble("amount");
+                double balance = rs.getDouble("balance");
+                String desc = rs.getString("description");
+
+                String line = String.format("%-12s %-10s ₹%-10.2f ₹%-10.2f %-30s",
+                    sdf.format(date), type, amount, balance, desc.length() > 28 ? desc.substring(0, 28) : desc);
+
+                contentStream.showText(line);
+                contentStream.newLineAtOffset(0, -leading);
+            }
+
+            if (!hasData) {
+                contentStream.showText("No transactions found.");
+            }
+
+            contentStream.endText();
+            contentStream.close();
+            document.save(out);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

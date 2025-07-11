@@ -1,0 +1,46 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class RegisterServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        
+        String name = request.getParameter("name");
+        String contact = request.getParameter("contact");
+        String pin = request.getParameter("pin");
+        String accNum = "AC" + System.currentTimeMillis();  // unique account number
+        double initialBalance = 0;
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "INSERT INTO accounts (account_number, name, contact, pin, balance) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ps.setString(2, name);
+            ps.setString(3, contact);
+            ps.setString(4, pin);
+            ps.setDouble(5, initialBalance);
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                out.println("<h2>Account created successfully!</h2>");
+                out.println("<p>Your Account Number is: <strong>" + accNum + "</strong></p>");
+                out.println("<a href='login.jsp'>Go to Login</a>");
+            } else {
+                out.println("<h2>Error: Failed to create account.</h2>");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(out);
+        }
+    }
+}

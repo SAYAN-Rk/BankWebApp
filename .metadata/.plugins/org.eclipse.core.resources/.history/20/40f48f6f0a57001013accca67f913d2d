@@ -1,0 +1,118 @@
+<%
+    String accountHolder = (String) session.getAttribute("accountHolder");
+    if (accountHolder == null) {
+        response.sendRedirect("login.html");
+        return;
+    }
+%>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #ff6600;
+      color: white;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: white;
+      font-size: 16px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      background-color: #e65c00;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px;
+      background-color: #ffffff;
+    }
+
+    .welcome {
+      font-size: 22px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .notice {
+      font-size: 16px;
+      color: #666;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 0;
+      left: 240px;
+      width: calc(100% - 240px);
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #999;
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>ROY BANK</h2>
+    <a href="deposit.html">💰 Deposit</a>
+    <a href="withdraw.html">🏧 Withdraw</a>
+    <a href="transfer.html">🔁 Transfer</a>
+    <a href="MiniStatementServlet">📄 Mini Statement</a>
+    <a href="TransactionHistory.jsp">📅 Transaction History</a>
+    <a href="change_pin.html">🔒 Change PIN</a>
+    <a href="update_account.html">✏️ Update Info</a>
+    <a href="close_account.html">❌ Close Account</a>
+    <a href="logout.jsp">🚪 Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="welcome">
+      Welcome, <strong><%= accountHolder %></strong> 👋
+    </div>
+    <p class="notice">Please select an action from the left-hand menu to continue banking with us.</p>
+  </div>
+
+  <footer>
+    &copy; 2025 ROY BANK. All rights reserved.
+  </footer>
+
+</body>
+</html>

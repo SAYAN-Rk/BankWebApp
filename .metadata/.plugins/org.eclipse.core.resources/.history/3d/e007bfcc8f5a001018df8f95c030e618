@@ -1,0 +1,121 @@
+<%@ page import="java.util.List" %>
+<%@ page import="com.bankapp.Transaction" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%
+    List<Transaction> transactions = (List<Transaction>) request.getAttribute("transactions");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transaction History | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      margin: 0;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff6600, #ff8533);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      border-collapse: collapse;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #ff6600;
+      color: white;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      background-color: #f2f2f2;
+      color: #777;
+    }
+
+    .no-data {
+      text-align: center;
+      font-size: 16px;
+      color: #888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>ROY BANK - Transaction History</header>
+
+  <main>
+    <%
+      if (transactions != null && !transactions.isEmpty()) {
+    %>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Balance</th>
+      </tr>
+      <%
+        for (Transaction txn : transactions) {
+      %>
+      <tr>
+        <td><%= sdf.format(txn.getDate()) %></td>
+        <td><%= txn.getType() %></td>
+        <td>₹<%= String.format("%.2f", txn.getAmount()) %></td>
+        <td>₹<%= String.format("%.2f", txn.getBalance()) %></td>
+      </tr>
+      <%
+        }
+      %>
+    </table>
+    <%
+      } else {
+    %>
+      <div class="no-data">No transactions found for selected date range.</div>
+    <%
+      }
+    %>
+  </main>
+
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+
+</body>
+</html>

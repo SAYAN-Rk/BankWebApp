@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transaction History | ROY BANK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body {
+      margin: 0;
+      background: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(to right, #ff6600, #ff8533);
+      color: white;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .card {
+      background: white;
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+    .icon {
+      font-size: 40px;
+      color: #ff6600;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: 500;
+      color: #444;
+    }
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .btn {
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      width: 100%;
+      margin-top: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #e65c00;
+    }
+    footer {
+      text-align: center;
+      padding: 12px;
+      background-color: #f2f2f2;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>ROY BANK</header>
+  <main>
+    <div class="card">
+      <div class="icon">📅</div>
+      <h2>Transaction History</h2>
+      <form action="TransactionHistoryServlet" method="post">
+        <label for="from">Start Date</label>
+        <input type="date" id="from" name="from" required>
+
+        <label for="to">End Date</label>
+        <input type="date" id="to" name="to" required>
+
+        <input type="submit" value="View History" class="btn">
+      </form>
+    </div>
+  </main>
+  <footer>&copy; 2025 ROY BANK. All rights reserved.</footer>
+</body>
+</html>

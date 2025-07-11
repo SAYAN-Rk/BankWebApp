@@ -1,0 +1,105 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.common.*;
+import org.apache.pdfbox.pdmodel.font.*;
+
+public class ExportPDFServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            response.setContentType("text/html");
+            PrintWriter out = response.getWriter();
+            out.println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=Transaction_History.pdf");
+
+        try (
+            PDDocument doc = new PDDocument();
+            Connection conn = DBConnection.getConnection();
+            OutputStream out = response.getOutputStream()
+        ) {
+            PDPage page = new PDPage();
+            doc.addPage(page);
+
+            PDPageContentStream content = new PDPageContentStream(doc, page);
+            PDFont font = PDType1Font.HELVETICA;
+            float leading = 16f;
+            float margin = 50;
+            float yStart = page.getMediaBox().getHeight() - margin;
+
+            content.setFont(font, 12);
+            content.beginText();
+            content.newLineAtOffset(margin, yStart);
+
+            content.showText("ROY BANK - Transaction History for Account: " + accNum);
+            content.newLineAtOffset(0, -leading * 2);
+
+            // Table Header
+            content.setFont(font, 11);
+            content.showText(String.format("%-12s %-10s %-12s %-10s %-30s", "Date", "Type", "Amount", "Balance", "Description"));
+            content.newLineAtOffset(0, -leading);
+
+            // Query DB
+            String sql = "SELECT date, type, amount, balance, description FROM transactions WHERE account_number = ? ORDER BY date DESC";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            boolean found = false;
+
+            while (rs.next()) {
+                found = true;
+                Date date = rs.getDate("date");
+                String type = rs.getString("type");
+                double amount = rs.getDouble("amount");
+                double balance = rs.getDouble("balance");
+                String desc = rs.getString("description");
+
+                String line = String.format("%-12s %-10s ₹%-10.2f ₹%-10.2f %-30s",
+                        sdf.format(date), type, amount, balance, desc);
+
+                content.showText(line.length() > 95 ? line.substring(0, 95) : line); // trim if needed
+                content.newLineAtOffset(0, -leading);
+
+                if (yStart - margin - leading * 5 < content.getLeading()) {
+                    content.endText();
+                    content.close();
+                    page = new PDPage();
+                    doc.addPage(page);
+                    content = new PDPageContentStream(doc, page);
+                    content.setFont(font, 11);
+                    content.beginText();
+                    content.newLineAtOffset(margin, yStart);
+                }
+            }
+
+            if (!found) {
+                content.showText("No transactions found.");
+            }
+
+            content.endText();
+            content.close();
+            doc.save(out);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

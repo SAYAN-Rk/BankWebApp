@@ -1,0 +1,70 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class DepositServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            request.setAttribute("message", "Session expired. Please login again.");
+            request.getRequestDispatcher("message.jsp").forward(request, response);
+            return;
+        }
+
+        try {
+            double amount = Double.parseDouble(request.getParameter("amount"));
+
+            try (Connection conn = DBConnection.getConnection()) {
+                conn.setAutoCommit(false);
+
+                // Step 1: Update balance
+                PreparedStatement ps1 = conn.prepareStatement(
+                    "UPDATE accounts SET balance = balance + ? WHERE account_number = ?");
+                ps1.setDouble(1, amount);
+                ps1.setString(2, accNum);
+                ps1.executeUpdate();
+
+                // Step 2: Get updated balance
+                PreparedStatement ps3 = conn.prepareStatement(
+                    "SELECT balance FROM accounts WHERE account_number = ?");
+                ps3.setString(1, accNum);
+                ResultSet rs = ps3.executeQuery();
+                double balance = 0;
+                if (rs.next()) {
+                    balance = rs.getDouble("balance");
+                }
+
+                // Step 3: Insert into transactions
+                PreparedStatement ps2 = conn.prepareStatement(
+                    "INSERT INTO transactions (account_number, date, type, amount, balance, description) VALUES (?, CURDATE(), ?, ?, ?, ?)");
+                ps2.setString(1, accNum);
+                ps2.setString(2, "Credit");
+                ps2.setDouble(3, amount);
+                ps2.setDouble(4, balance);
+                ps2.setString(5, "Deposited via ROY BANK Portal");
+                ps2.executeUpdate();
+
+                conn.commit();
+
+                String msg = "Rs" + amount + " deposited successfully!";
+                request.setAttribute("message", msg);
+                request.getRequestDispatcher("message.jsp").forward(request, response);
+            }
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Invalid amount entered.");
+            request.getRequestDispatcher("message.jsp").forward(request, response);
+        } catch (SQLException e) {
+            request.setAttribute("message", "Database error: " + e.getMessage());
+            request.getRequestDispatcher("message.jsp").forward(request, response);
+        }
+    }
+}

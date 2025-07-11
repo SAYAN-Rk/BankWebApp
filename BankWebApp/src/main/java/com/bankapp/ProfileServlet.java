@@ -1,0 +1,45 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class ProfileServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            request.setAttribute("message", "Session expired. Please login again.");
+            request.getRequestDispatcher("message.jsp").forward(request, response);
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT name, contact, balance FROM accounts WHERE account_number = ?");
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                request.setAttribute("accNum", accNum);
+                request.setAttribute("name", rs.getString("name"));
+                request.setAttribute("contact", rs.getString("contact"));
+                request.setAttribute("balance", rs.getDouble("balance"));
+                RequestDispatcher rd = request.getRequestDispatcher("profile.jsp");
+                rd.forward(request, response); 
+                
+           } else {
+                request.setAttribute("message", "Account not found.");
+                request.getRequestDispatcher("message.jsp").forward(request, response);
+            }
+
+        } catch (Exception e) {
+            request.setAttribute("message", "Error: " + e.getMessage());
+            request.getRequestDispatcher("message.jsp").forward(request, response);
+        }
+    }
+}

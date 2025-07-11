@@ -1,0 +1,153 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.*;
+import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+
+public class ExportPDFServlet extends HttpServlet {
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+
+        if (accNum == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        // ✅ Fetch last 10 transactions from DB
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT date, type, amount, balance, description FROM transactions WHERE account_number = ? ORDER BY date DESC LIMIT 10";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Date date = rs.getDate("date");
+                String type = rs.getString("type");
+                double amount = rs.getDouble("amount");
+                double balance = rs.getDouble("balance");
+                String description = rs.getString("description");
+
+                transactions.add(new Transaction(date, type, amount, balance, description));
+            }
+
+        } catch (SQLException e) {
+            throw new ServletException("Database error: " + e.getMessage());
+        }
+
+        // ✅ Create PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=MiniStatement.pdf");
+
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+        PDType1Font font = PDType1Font.HELVETICA;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        float margin = 50;
+        float yStart = 750;
+        float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+        float rowHeight = 20;
+        float tableTopY = yStart - 40;
+
+        String[] headers = { "Date", "Type", "Amount", "Balance", "Description" };
+        float[] colWidths = { 70, 50, 70, 70, 200 };
+
+        // ✅ Title
+        content.beginText();
+        content.setFont(font, 16);
+        content.newLineAtOffset(margin, yStart);
+        content.showText("ROY BANK - Mini Statement");
+        content.setFont(font, 12);
+        content.newLineAtOffset(0, -20);
+        content.showText("Account Number: " + accNum);
+        content.endText();
+
+        // ✅ Draw header background
+        float yPosition = tableTopY;
+        content.setNonStrokingColor(255, 102, 0); // Orange
+        content.addRect(margin, yPosition, tableWidth, rowHeight);
+        content.fill();
+
+        // ✅ Write header text
+        content.setNonStrokingColor(255, 255, 255); // White
+        content.beginText();
+        content.setFont(font, 12);
+        content.newLineAtOffset(margin + 5, yPosition + 5);
+
+        for (int i = 0; i < headers.length; i++) {
+            content.showText(headers[i]);
+            content.newLineAtOffset(colWidths[i], 0);
+        }
+        content.endText();
+
+        // ✅ Reset color for rows
+        content.setNonStrokingColor(0, 0, 0);
+
+        // ✅ Write rows
+        yPosition -= rowHeight;
+        for (Transaction txn : transactions) {
+            content.beginText();
+            content.setFont(font, 11);
+            content.newLineAtOffset(margin + 5, yPosition + 5);
+
+            String[] row = {
+                sdf.format(txn.getDate()),
+                txn.getType(),
+                "₹" + String.format("%.2f", txn.getAmount()),
+                "₹" + String.format("%.2f", txn.getBalance()),
+                txn.getDescription().length() > 50 ? txn.getDescription().substring(0, 50) + "..." : txn.getDescription()
+            };
+
+            for (int i = 0; i < row.length; i++) {
+                content.showText(row[i]);
+                content.newLineAtOffset(colWidths[i], 0);
+            }
+            content.endText();
+            yPosition -= rowHeight;
+        }
+
+        // ✅ Draw table lines
+        float y = tableTopY + rowHeight;
+        content.setStrokingColor(180, 180, 180); // Light gray
+
+        // Horizontal lines
+        for (int i = 0; i <= transactions.size() + 1; i++) {
+            content.moveTo(margin, y - i * rowHeight);
+            content.lineTo(margin + tableWidth, y - i * rowHeight);
+        }
+
+        // Vertical lines
+        float x = margin;
+        for (float width : colWidths) {
+            content.moveTo(x, y);
+            content.lineTo(x, y - (transactions.size() + 1) * rowHeight);
+            x += width;
+        }
+        content.moveTo(x, y);
+        content.lineTo(x, y - (transactions.size() + 1) * rowHeight);
+
+        content.stroke();
+        content.close();
+
+        document.save(response.getOutputStream());
+        document.close();
+    }
+}

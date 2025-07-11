@@ -1,0 +1,45 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class RegisterServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String name = request.getParameter("name");
+        String contact = request.getParameter("contact");
+        String pin = request.getParameter("pin");
+        String accNum = "AC" + System.currentTimeMillis();  // Unique account number
+        double initialBalance = 0;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "INSERT INTO accounts (account_number, name, contact, pin, balance) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, accNum);
+            ps.setString(2, name);
+            ps.setString(3, contact);
+            ps.setString(4, pin);
+            ps.setDouble(5, initialBalance);
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                String msg = "Account created successfully!<br>Your Account Number is <strong>" + accNum + "</strong><br><a href='login.jsp'>Click here to Login</a>";
+                request.setAttribute("showme", msg);
+                request.getRequestDispatcher("showme.jsp").forward(request, response);
+            } else {
+                request.setAttribute("showme", "Error: Failed to create account.");
+                request.getRequestDispatcher("showme.jsp").forward(request, response);
+            }
+
+        } catch (SQLException e) {
+            request.setAttribute("showme", "Error: " + e.getMessage());
+            request.getRequestDispatcher("showme.jsp").forward(request, response);
+        }
+    }
+}

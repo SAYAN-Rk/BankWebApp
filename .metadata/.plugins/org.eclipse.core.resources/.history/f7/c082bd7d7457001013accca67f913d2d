@@ -1,0 +1,62 @@
+package com.bankapp;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
+
+public class DepositServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        String accNum = (String) request.getSession().getAttribute("accountNumber");
+        double amount = Double.parseDouble(request.getParameter("amount"));
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        if (accNum == null) {
+            out.println("<h2>Session expired. Please login again.</h2>");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            // ✅ Update balance
+            PreparedStatement ps1 = conn.prepareStatement(
+                "UPDATE accounts SET balance = balance + ? WHERE account_number = ?");
+            ps1.setDouble(1, amount);
+            ps1.setString(2, accNum);
+            ps1.executeUpdate();
+
+            // ✅ Get updated balance
+            PreparedStatement ps3 = conn.prepareStatement(
+                "SELECT balance FROM accounts WHERE account_number = ?");
+            ps3.setString(1, accNum);
+            ResultSet rs = ps3.executeQuery();
+            double balance = 0;
+            if (rs.next()) {
+                balance = rs.getDouble("balance");
+            }
+
+            // ✅ Insert into transactions
+            PreparedStatement ps2 = conn.prepareStatement(
+                "INSERT INTO transactions (account_number, date, type, amount, balance, description) VALUES (?, CURDATE(), ?, ?, ?, ?)");
+            ps2.setString(1, accNum);
+            ps2.setString(2, "Credit");
+            ps2.setDouble(3, amount);
+            ps2.setDouble(4, balance);
+            ps2.setString(5, "Deposited via ROY BANK Portal");
+            ps2.executeUpdate();
+
+            conn.commit();
+            out.println("<h2>₹" + amount + " deposited successfully!</h2>");
+            out.println("<a href='dashboard.jsp'>Go to DASHBOARD</a>");
+        } catch (SQLException e) {
+            e.printStackTrace(out);
+        }
+    }
+}
